@@ -5,15 +5,15 @@ using UnityEngine.UI;
 
 public class DialogueComponent : MonoBehaviour
 {
-    public GameObject player;
+    public GameObject player; //player to het stats from
 
-    public string dialogueText;
-    public List<DialogueOption> optionsList = new List<DialogueOption>();
+    public string dialogueText; //text above buttons/dialogue options
+    public List<DialogueOption> optionsList = new List<DialogueOption>(); //list of choosable dialogue options
 
-    public Canvas canvas;
-    public Button button;
+    public Canvas canvas; //prefab
+    public Button button; //prefab
 
-    Canvas dialogueWindow;
+    Canvas dialogueWindow; //handle for hiding and showing dialogue
 
     public enum ConditionType
     {
@@ -41,7 +41,7 @@ public class DialogueComponent : MonoBehaviour
 
 
     // Start is called before the first frame update
-    void Start()
+    public virtual void Start()
     {
         SetDialogueText("Wybierz jedną z opcji");
 
@@ -64,15 +64,15 @@ public class DialogueComponent : MonoBehaviour
             dialogueWindow.transform.GetChild(1).GetComponentInChildren<TMPro.TextMeshProUGUI>().text = dialogueText;
             foreach (DialogueOption opt in optionsList)
             {
-                if (dialogueButton != null)
+                if (dialogueButton != null) //if not first button, set position of new one below previous one
                     dialogueButton = Instantiate(button, new Vector3(dialogueButton.transform.position.x, dialogueButton.transform.position.y - dialogueButton.GetComponent<RectTransform>().rect.height, dialogueButton.transform.position.z), Quaternion.identity, dialogueWindow.transform.GetChild(1));
                 else
-                    dialogueButton = Instantiate(button, dialogueWindow.transform.GetChild(1), false);
-                dialogueButton.transform.GetComponentInChildren<TMPro.TextMeshProUGUI>().text = opt.text + CheckCondition(opt, player, dialogueButton);
+                    dialogueButton = Instantiate(button, dialogueWindow.transform.GetChild(1), false); //first button
+                dialogueButton.transform.GetComponentInChildren<TMPro.TextMeshProUGUI>().text = opt.text + CheckCondition(opt, player, dialogueButton); //text on button
                 if (opt.triggerEvent)
-                    dialogueButton.onClick.AddListener(delegate { RunEvent(); });
+                    dialogueButton.onClick.AddListener(delegate { RunEvent(); }); //run event if button is trigger
                 else
-                    dialogueButton.onClick.AddListener(delegate { HideDialogue(); });
+                    dialogueButton.onClick.AddListener(delegate { HideDialogue(); }); //close window if button without trigger
             }
         }
     }
@@ -88,6 +88,7 @@ public class DialogueComponent : MonoBehaviour
         optionsList.Add(option);
     }
 
+    /*makes button inactive if condition not met, returns text playerstatValue/conditionValue */
     string CheckCondition(DialogueOption opt, GameObject player, Button dButton)
     {
         PlayerSkillsComponent psc = player.GetComponent<PlayerSkillsComponent>();
@@ -131,6 +132,7 @@ public class DialogueComponent : MonoBehaviour
 
     public virtual void RunEvent()
     {
-
+        GetComponentInParent<ParticleSystem>().Play();
+        HideDialogue();
     }
 }
